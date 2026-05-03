@@ -56,7 +56,7 @@ export default function CandidateProfile() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/candidates/${id}`)
+    fetch(`https://ai-recruiter-ne55.onrender.com/api/candidates/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data) {

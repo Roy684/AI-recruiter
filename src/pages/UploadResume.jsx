@@ -18,7 +18,7 @@ export default function UploadResume() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/upload-resume', {
+      const res = await fetch('https://ai-recruiter-ne55.onrender.com/api/upload-resume', {
         method: 'POST',
         body: formData,
       });

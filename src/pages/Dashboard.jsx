@@ -32,7 +32,7 @@ export default function Dashboard() {
 
   // ── Fetch all JDs ──────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch('http://localhost:5000/api/job-descriptions')
+    fetch('https://ai-recruiter-ne55.onrender.com/api/job-descriptions')
       .then(r => r.json())
       .then(data => {
         if (data.success && data.data?.job_descriptions) {
@@ -47,7 +47,7 @@ export default function Dashboard() {
   // ── Fetch candidates ───────────────────────────────────────────────────────
   const fetchCandidates = useCallback(() => {
     setLoading(true);
-    fetch('http://localhost:5000/api/candidates')
+    fetch('https://ai-recruiter-ne55.onrender.com/api/candidates')
       .then(r => r.json())
       .then(data => {
         if (data.success && data.data?.candidates) {
@@ -65,7 +65,7 @@ export default function Dashboard() {
     if (!selectedJd) return;
     setScoring(true);
     try {
-      const res = await fetch('http://localhost:5000/api/score-all', {
+      const res = await fetch('https://ai-recruiter-ne55.onrender.com/api/score-all', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jd_id: selectedJd.id }),
@@ -88,7 +88,7 @@ export default function Dashboard() {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
     setDeleting(id);
     try {
-      const res = await fetch(`http://localhost:5000/api/candidates/${id}`, { method: 'DELETE' });
+      const res = await fetch(`https://ai-recruiter-ne55.onrender.com/api/candidates/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         setCandidates(prev => prev.filter(c => c.id !== id));

@@ -12,7 +12,7 @@ export default function JobDescription() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/job-description', {
+      const res = await fetch('https://ai-recruiter-ne55.onrender.com/api/job-description', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jobTitle, description, skills }),
