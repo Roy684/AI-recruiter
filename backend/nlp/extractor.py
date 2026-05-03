@@ -11,20 +11,48 @@ Public API:
     parse_resume(file_path)   → dict with name, email, phone, skills, raw_text
 """
 
+import importlib
 import re
 import logging
 from pathlib import Path
 
 from nlp.skills import ALL_SKILLS, SKILL_ALIASES
-import spacy
-_nlp = spacy.load("en_core_web_sm")
+
+logger = logging.getLogger(__name__)
+
+_SPACY_NLP = None
+
+
+def _get_spacy_nlp():
+    """Lazily load spaCy and its small English model if available."""
+    global _SPACY_NLP
+    if _SPACY_NLP is not None:
+        return _SPACY_NLP
+
+    try:
+        spacy = importlib.import_module("spacy")
+        try:
+            _SPACY_NLP = spacy.load("en_core_web_sm")
+        except OSError:
+            # Model may be installed as a separate package
+            en_core_web_sm = importlib.import_module("en_core_web_sm")
+            _SPACY_NLP = en_core_web_sm.load()
+        logger.info("spaCy model loaded successfully.")
+    except Exception as exc:
+        _SPACY_NLP = None
+        logger.warning("spaCy unavailable or model missing: %s", exc)
+
+    return _SPACY_NLP
+
 
 def _extract_name(text: str) -> str:
     # Strategy 1: spaCy PERSON entity in the first 500 chars
-    doc = _nlp(text[:500])
-    for ent in doc.ents:
-        if ent.label_ == "PERSON":
-            return ent.text.strip()
+    nlp = _get_spacy_nlp()
+    if nlp is not None:
+        doc = nlp(text[:500])
+        for ent in doc.ents:
+            if ent.label_ == "PERSON":
+                return ent.text.strip()
 
     # Strategy 2: First non-empty line that looks like a name
     for line in text[:300].splitlines():

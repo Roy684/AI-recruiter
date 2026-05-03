@@ -2,6 +2,7 @@
 nlp/scorer.py
 """
 
+import importlib
 import logging
 import math
 import re
@@ -20,13 +21,8 @@ except ImportError:
     _SKLEARN_AVAILABLE = False
     logger.warning("scikit-learn not installed. TF-IDF scoring disabled.")
 
-try:
-    from sentence_transformers import SentenceTransformer
-    _SBERT_MODEL: Optional[SentenceTransformer] = None
-    _SBERT_AVAILABLE = True
-except ImportError:
-    _SBERT_AVAILABLE = False
-    logger.warning("sentence-transformers not installed. SBERT scoring disabled.")
+_SBERT_MODEL: Optional["SentenceTransformer"] = None
+_SBERT_AVAILABLE = False
 
 # ── Component weights ─────────────────────────────────────────────────────────
 _W_TFIDF = 0.20
@@ -36,22 +32,24 @@ _W_SKILL  = 0.25
 _SBERT_MODEL_NAME = "all-MiniLM-L6-v2"
 
 
-# ── ADDED BACK: was missing from your current file ───────────────────────────
-def _get_sbert() -> "SentenceTransformer | None":
-    """Lazy-load the SBERT model (downloads on first call, ~90 MB)."""
-    global _SBERT_MODEL
-    if not _SBERT_AVAILABLE:
-        return None
-    if _SBERT_MODEL is None:
-        logger.info("Loading SBERT model '%s' …", _SBERT_MODEL_NAME)
-        try:
-            _SBERT_MODEL = SentenceTransformer(_SBERT_MODEL_NAME)
-            logger.info("SBERT model loaded.")
-        except Exception as exc:
-            logger.exception("Failed to load SBERT model: %s", exc)
-            return None
-    return _SBERT_MODEL
+def _get_sbert() -> Optional["SentenceTransformer"]:
+    """Lazy-load the SBERT model only when scoring is requested."""
+    global _SBERT_MODEL, _SBERT_AVAILABLE
+    if _SBERT_MODEL is not None:
+        return _SBERT_MODEL
 
+    try:
+        st = importlib.import_module("sentence_transformers")
+        SentenceTransformer = getattr(st, "SentenceTransformer")
+        _SBERT_MODEL = SentenceTransformer(_SBERT_MODEL_NAME)
+        _SBERT_AVAILABLE = True
+        logger.info("Loaded SBERT model %s.", _SBERT_MODEL_NAME)
+    except Exception as exc:
+        _SBERT_AVAILABLE = False
+        _SBERT_MODEL = None
+        logger.warning("SBERT scoring unavailable: %s", exc)
+
+    return _SBERT_MODEL
 
 # ── ADDED BACK: was missing from your current file ───────────────────────────
 def _tfidf_score(resume_text: str, job_text: str) -> float:
