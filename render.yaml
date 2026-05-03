@@ -2,8 +2,8 @@
   - type: web
     name: resume-screener-api
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1
     envVars:
       - key: FLASK_DEBUG
         value: "False"
