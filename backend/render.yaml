@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: resume-screener-api
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python -m spacy download en_core_web_sm"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1"
+    envVars:
+      - key: FLASK_DEBUG
+        value: "False"
+      - key: UPLOAD_FOLDER
+        value: "uploads"
