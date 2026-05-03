@@ -10,6 +10,7 @@ Usage anywhere in the app:
 """
 
 import os
+import json
 import logging
 
 import firebase_admin
@@ -25,22 +26,34 @@ _app: firebase_admin.App | None = None
 
 def _init() -> firebase_admin.App | None:
     """Initialise the Firebase Admin SDK once per process."""
-    cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "")
     storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET", "")
+    service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT", "")
+    cred_path            = os.getenv("FIREBASE_CREDENTIALS_PATH", "")
 
-    if not cred_path or not os.path.isfile(cred_path):
-        logger.warning(
-            "Firebase: FIREBASE_CREDENTIALS_PATH not set or file missing. "
-            "Running without Firestore / Storage."
-        )
-        return None
-
+    
     try:
-        cred = credentials.Certificate(cred_path)
+        if service_account_json:
+            # Running on Render — credentials passed as JSON string in env var
+            logger.info("Firebase: loading credentials from FIREBASE_SERVICE_ACCOUNT env var.")
+            cred = credentials.Certificate(json.loads(service_account_json))
+
+        elif cred_path and os.path.isfile(cred_path):
+            # Running locally — credentials loaded from file
+            logger.info("Firebase: loading credentials from file: %s", cred_path)
+            cred = credentials.Certificate(cred_path)
+
+        else:
+            logger.warning(
+                "Firebase: neither FIREBASE_SERVICE_ACCOUNT env var nor "
+                "FIREBASE_CREDENTIALS_PATH file found. Running without Firebase."
+            )
+            return None
+
         options = {"storageBucket": storage_bucket} if storage_bucket else {}
         app = firebase_admin.initialize_app(cred, options or None)
         logger.info("Firebase initialised (bucket=%s).", storage_bucket or "none")
         return app
+
     except Exception as exc:
         logger.exception("Firebase init failed: %s", exc)
         return None
