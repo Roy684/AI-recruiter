@@ -14,7 +14,7 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-surface/80 border-b border-surface-hover shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:h-16">
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center gap-2">
               <div className="bg-gradient-to-tr from-primary to-secondary p-2 rounded-lg">
@@ -25,8 +25,8 @@ export default function Navbar() {
               </span>
             </Link>
           </div>
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+          <div className="block w-full md:w-auto">
+            <div className="mt-4 flex flex-col gap-2 md:mt-0 md:flex-row md:items-baseline md:space-x-4">
               {links.map((link) => {
                 const Icon = link.icon;
                 const isActive = location.pathname === link.path;

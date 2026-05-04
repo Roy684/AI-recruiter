@@ -16,19 +16,13 @@ export default function Home() {
           Automate your screening process, rank candidates instantly, and find the perfect match for your job descriptions in seconds.
         </p>
         
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+        <div className="flex justify-center pt-6">
           <Link
             to="/upload"
             className="flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1"
           >
             Get Started
             <ArrowRight className="h-5 w-5" />
-          </Link>
-          <Link
-            to="/job-description"
-            className="flex items-center gap-2 px-8 py-4 bg-surface hover:bg-surface-hover text-text-main rounded-xl font-semibold transition-all border border-surface-hover hover:border-text-muted"
-          >
-            View Demo
           </Link>
         </div>
 
