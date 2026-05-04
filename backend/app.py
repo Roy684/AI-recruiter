@@ -250,12 +250,21 @@ def score():
         resume_text = cand.get("raw_text", "")
         resume_skills = cand.get("skills", [])
         
-        score_data = score_candidate(resume_text, job_text, resume_skills, job_skills)
+        score_data = score_candidate(
+            resume_text,
+            job_text,
+            resume_skills,
+            job_skills,
+            sections=cand.get("sections", {}),
+        )
         
         doc_ref.update({
-            "score": score_data["score"], 
+            "score": score_data["score"],
+            "tfidf_sim": score_data.get("tfidf_sim", 0),
+            "sbert_sim": score_data.get("sbert_sim", 0),
+            "skill_match": score_data.get("skill_match", 0),
             "status": "reviewed",
-            "matched_skills": score_data.get("matched_skills", [])
+            "matched_skills": score_data.get("matched_skills", []),
         })
         
         return _ok("Scoring completed.", {"score": score_data["score"], "details": score_data})
@@ -303,7 +312,13 @@ def score_all():
         resume_text = cand.get("raw_text", "")
         resume_skills = cand.get("skills", [])
         
-        score_data = score_candidate(resume_text, job_text, resume_skills, job_skills)
+        score_data = score_candidate(
+            resume_text,
+            job_text,
+            resume_skills,
+            job_skills,
+            sections=cand.get("sections", {}),
+        )
         doc.reference.update({
             "score": score_data["score"],
             "tfidf_sim": score_data.get("tfidf_sim", 0),
