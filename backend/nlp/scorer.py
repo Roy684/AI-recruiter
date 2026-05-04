@@ -5,7 +5,9 @@ nlp/scorer.py
 import importlib
 import logging
 import math
+import os
 import re
+import requests
 from typing import Optional
 
 from nlp.skills import CATEGORY_WEIGHTS, SKILL_CATEGORY
@@ -73,11 +75,20 @@ def _normalize_skill(skill: str) -> str:
     return skill.lower().strip()
 
 
-# ── UPDATED: added sections param ────────────────────────────────────────────
+# ── UPDATED: added sections param and HuggingFace API support ──────────────────
 def _sbert_score(resume_text: str, job_text: str, sections: dict = None) -> float:
-    model = _get_sbert()
-    if model is None or not resume_text or not job_text:
+    if not resume_text or not job_text:
         return 0.0
+
+    hf_token = os.getenv("HUGGINGFACE_API_KEY")
+    
+    # Don't load local model if we have an API key to save memory
+    model = None
+    if not hf_token:
+        model = _get_sbert()
+        if model is None:
+            return 0.0
+
     try:
         sections    = sections or {}
         job_snippet = job_text[:1500]
@@ -99,7 +110,19 @@ def _sbert_score(resume_text: str, job_text: str, sections: dict = None) -> floa
             return 0.0
 
         all_texts  = candidates + [job_snippet]
-        embeddings = model.encode(all_texts, convert_to_tensor=False)
+        
+        if hf_token:
+            api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/{_SBERT_MODEL_NAME}"
+            headers = {"Authorization": f"Bearer {hf_token}"}
+            response = requests.post(api_url, headers=headers, json={"inputs": all_texts, "options": {"wait_for_model": True}})
+            response.raise_for_status()
+            embeddings = response.json()
+            
+            if isinstance(embeddings, dict) and "error" in embeddings:
+                logger.error(f"HF API Error: {embeddings['error']}")
+                return 0.0
+        else:
+            embeddings = model.encode(all_texts, convert_to_tensor=False)
 
         job_emb   = embeddings[-1]
         cand_embs = embeddings[:-1]
@@ -163,7 +186,7 @@ def score_candidate(
     active_components = []
     if _SKLEARN_AVAILABLE:
         active_components.append(("tfidf", tfidf_sim, _W_TFIDF))
-    if _SBERT_AVAILABLE:
+    if _SBERT_AVAILABLE or os.getenv("HUGGINGFACE_API_KEY"):
         active_components.append(("sbert", sbert_sim, _W_SBERT))
     active_components.append(("skill", skill_match, _W_SKILL))
 
