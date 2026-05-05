@@ -97,30 +97,30 @@ export default function CandidateProfile() {
     );
   }
 
-  const tfidf    = Math.round((candidate.tfidf_sim   ?? 0) * 100);
-  const sbert    = Math.round((candidate.sbert_sim    ?? 0) * 100);
-  const skillPct = Math.round((candidate.skill_match  ?? 0) * 100);
-  const overall  = candidate.score ?? 0;
+  const tfidf = Math.round((candidate.tfidf_sim ?? 0) * 100);
+  const sbert = Math.round((candidate.sbert_sim ?? 0) * 100);
+  const skillPct = Math.round((candidate.skill_match ?? 0) * 100);
+  const overall = candidate.score ?? 0;
 
   const pieData = [
-    { name: 'TF-IDF Similarity', value: tfidf    || 1 },
-    { name: 'Semantic Match',     value: sbert    || 1 },
-    { name: 'Skill Overlap',      value: skillPct || 1 },
+    { name: 'TF-IDF Similarity', value: tfidf || 1 },
+    { name: 'Semantic Match', value: sbert || 1 },
+    { name: 'Skill Overlap', value: skillPct || 1 },
   ];
 
   const fitLabel =
-    overall >= 90 ? 'Excellent' :
-    overall >= 80 ? 'Strong' :
-    overall >= 70 ? 'Good' :
-    overall >= 60 ? 'Fair' : 'Weak';
+    overall >= 80 ? 'Excellent' :
+      overall >= 60 ? 'Strong' :
+        overall >= 40 ? 'Good' :
+          overall >= 20 ? 'Fair' : 'Weak';
 
   const fitColor =
-    overall >= 90 ? '#10b981' :
-    overall >= 80 ? '#0ea5e9' :
-    overall >= 70 ? '#f59e0b' : '#ef4444';
+    overall >= 80 ? '#10b981' :
+      overall >= 60 ? '#0ea5e9' :
+        overall >= 40 ? '#f59e0b' : '#ef4444';
 
-  const matchedSkills  = candidate.matched_skills  ?? [];
-  const allSkills      = candidate.skills          ?? [];
+  const matchedSkills = candidate.matched_skills ?? [];
+  const allSkills = candidate.skills ?? [];
   const unmatchedSkills = allSkills.filter(s => !matchedSkills.map(m => m.toLowerCase()).includes(s.toLowerCase()));
 
   return (
@@ -196,9 +196,9 @@ export default function CandidateProfile() {
 
           {/* Mini ring scores */}
           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '16px' }}>
-            <ScoreRing value={tfidf}    label="TF-IDF"    color="#4f46e5" />
-            <ScoreRing value={sbert}    label="Semantic"  color="#0ea5e9" />
-            <ScoreRing value={skillPct} label="Skills"    color="#10b981" />
+            <ScoreRing value={tfidf} label="TF-IDF" color="#4f46e5" />
+            <ScoreRing value={sbert} label="Semantic" color="#0ea5e9" />
+            <ScoreRing value={skillPct} label="Skills" color="#10b981" />
           </div>
         </div>
 
