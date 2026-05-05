@@ -1,15 +1,3 @@
-"""
-app.py
--------
-AI-Powered Resume Screening & Candidate Ranking System
-Flask backend — all routes live here.
-
-Run:
-    python app.py
-    
-Production:
-    gunicorn -w 4 -b 0.0.0.0:5000 app:app
-"""
 
 import os
 import logging
@@ -78,11 +66,6 @@ MAX_RAW_TEXT = 15_000
 # ── POST /api/upload-resume ────────────────────────────────────────────────────
 @app.route("/api/upload-resume", methods=["POST"])
 def upload_resume():
-    """
-    Accept one or more PDF files (field name: 'resumes').
-    Saves each file, runs NLP extraction, and stores results in Firestore.
-    Returns dummy data if Firestore is unavailable.
-    """
     if "resumes" not in request.files:
         return _err("Send PDF files under the field name 'resumes'.", 400)
 
@@ -163,16 +146,6 @@ def upload_resume():
 # ── POST /api/job-description ──────────────────────────────────────────────────
 @app.route("/api/job-description", methods=["POST"])
 def job_description():
-    """
-    Save a job description and (when candidates exist) trigger re-scoring.
-
-    Expected JSON body:
-        {
-            "jobTitle":    "Senior Frontend Engineer",
-            "description": "We are looking for...",
-            "skills":      ["React", "TypeScript"]   ← list OR comma string
-        }
-    """
     body = request.get_json(silent=True)
     if not body:
         return _err("Request body must be JSON.", 400)
@@ -225,10 +198,6 @@ def get_job_description():
 # ── POST /api/score ────────────────────────────────────────────────────────────
 @app.route("/api/score", methods=["POST"])
 def score():
-    """
-    Accepts job description text and a resume ID.
-    Fetches the resume text, computes similarity, updates the score, and returns it.
-    """
     body = request.get_json(silent=True)
     if not body:
         return _err("Request body must be JSON.", 400)
@@ -276,10 +245,6 @@ def score():
 # ── POST /api/score-all ───────────────────────────────────────────────────────
 @app.route("/api/score-all", methods=["POST"])
 def score_all():
-    """
-    Score all candidates against a specific job description (by id), or the latest.
-    Body (optional JSON): { "jd_id": "<firestore_doc_id>" }
-    """
     if not db:
         return _err("Firestore is unavailable.", 500)
         
@@ -335,14 +300,6 @@ def score_all():
 # ── GET /api/candidates ────────────────────────────────────────────────────────
 @app.route("/api/candidates", methods=["GET"])
 def list_candidates():
-    """
-    Return all ranked candidates sorted by score descending.
-
-    Query params:
-        search  → filter by name / role / skill (case-insensitive)
-        sort    → field to sort by (default: score)
-        order   → asc | desc  (default: desc)
-    """
     # Try Firestore first
     if db:
         try:
@@ -460,9 +417,6 @@ def too_large(e):
 def server_error(e):
     logger.exception("Unhandled error: %s", e)
     return _err("Internal server error.", 500)
-
-
-# ── Entry point ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     app.run(

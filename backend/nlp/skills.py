@@ -1,13 +1,3 @@
-"""
-nlp/skills.py
---------------
-Master skill taxonomy used by the scorer and extractor.
-
-Organised into categories so the scorer can weight domain-specific
-skills differently (e.g. core programming languages rank higher than tools).
-
-Add or remove entries here — the rest of the pipeline picks them up automatically.
-"""
 
 # ── Core programming languages ────────────────────────────────────────────────
 LANGUAGES = {

@@ -1,15 +1,3 @@
-"""
-nlp/extractor.py
------------------
-PDF text extraction and structured field parsing.
-
-Dependencies:
-    pip install pdfplumber
-
-Public API:
-    extract_text(file_path)   → raw text string
-    parse_resume(file_path)   → dict with name, email, phone, skills, raw_text
-"""
 
 import importlib
 import re
@@ -85,15 +73,7 @@ _NAME_RE  = re.compile(r"^([A-Z][a-z]+(?:\s[A-Z][a-z]+){1,3})$", re.MULTILINE)
 
 
 def extract_text(file_path: str) -> str:
-    """
-    Extract all text from a PDF file using pdfplumber.
 
-    Args:
-        file_path: Absolute or relative path to the PDF.
-
-    Returns:
-        Concatenated text across all pages, or empty string on failure.
-    """
     if not _PDF_AVAILABLE:
         logger.error("pdfplumber is not installed; cannot extract text.")
         return ""
@@ -115,7 +95,6 @@ def extract_text(file_path: str) -> str:
         logger.exception("PDF extraction failed for %s: %s", file_path, exc)
         return ""
 
-# In extract_text(), add this normalization step after extracting:
 def _normalize_text(text: str) -> str:
     lines = []
     for line in text.splitlines():
@@ -188,18 +167,7 @@ def _name_from_filename(stem: str) -> str:
 
 
 def parse_resume(file_path: str) -> dict:
-    """
-    Extract structured fields from a PDF resume.
-
-    Returns:
-        {
-            "name":      str,
-            "email":     str,
-            "phone":     str,
-            "skills":    list[str],
-            "raw_text":  str,
-        }
-    """
+   
     raw_text = extract_text(file_path)
     filename_stem = Path(file_path).stem
     if not raw_text:
