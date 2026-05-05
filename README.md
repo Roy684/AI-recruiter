@@ -15,11 +15,11 @@ The application features a modern, responsive React frontend integrated with a r
 
 The core of the AI Recruiter is its scoring engine (`backend/nlp/scorer.py`), which evaluates candidate fitness using a multi-faceted NLP approach. It blends traditional keyword matching with deep semantic analysis to provide a balanced and accurate score.
 
-### 1. Semantic Search with Sentence-BERT (SBERT) - *Weight: 55%*
+### 1. Semantic Search with Sentence-BERT (SBERT) - *Weight: 60%*
 * **Technology:** `sentence-transformers` (`all-MiniLM-L6-v2` model)
 * **How it works:** Instead of just looking for exact words, SBERT understands the *meaning* and context of the text. It generates dense semantic embeddings for the job description and chunks of the resume. The system prioritizes key sections (projects, experience, skills, summary) and calculates the cosine similarity between the embeddings. This ensures that a candidate who describes relevant experience using different terminology than the job description still receives a high score.
 
-### 2. Categorical Skill Matching - *Weight: 25%*
+### 2. Categorical Skill Matching - *Weight: 20%*
 * **How it works:** The system extracts skills from the resume using a comprehensive, predefined master list of tech skills and their aliases (e.g., recognizing "React.js" and "React" as the same skill). It then computes a weighted score by matching these extracted skills against the required skills defined in the job description. Different skill categories (e.g., core languages vs. auxiliary tools) carry different weights to reflect their relative importance.
 
 ### 3. TF-IDF with Cosine Similarity - *Weight: 20%*
